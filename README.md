@@ -1,28 +1,34 @@
-## Usage
+worker-test
+
+A small demo app to inspect Web Worker behavior.
+
+- Hosted at: https://tats-u.github.io/worker-test/
+
+## Notes
+
+- If you enable the "Use Web Worker" checkbox in the app, you'll see the following error in the browser developer console (F12):
+
+	ReferenceError: document is not defined
+
+	This occurs because Web Workers run in a separate thread and do not have access to DOM global `document`. This is expected behavior.
+
+## Run locally
 
 ```bash
-$ pnpm install
+pnpm install
+pnpm run dev
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Then open http://localhost:5173 in your browser.
 
-## Available Scripts
+## Build
 
-In the project directory, you can run:
+```bash
+pnpm run build
+```
 
-### `pnpm run dev`
+The production build is output to the `dist` folder.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+## License
 
-### `pnpm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+This repository is licensed under MIT-0. See the `LICENSE` file for details.
