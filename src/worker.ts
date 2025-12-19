@@ -6,6 +6,9 @@ interface DecoderMessage {
 
 self.onmessage = (event: MessageEvent<DecoderMessage>) => {
   const { text } = event.data;
-  const result = decodeNamedCharacterReference(text);
-  self.postMessage({ input: text, result });
+  const raw = decodeNamedCharacterReference(text);
+  const result = raw === false ? null : raw;
+  (self as any).postMessage({ input: text, result });
 };
+
+export default {};

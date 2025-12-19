@@ -1,16 +1,17 @@
-import { createSignal, onMount, onCleanup } from 'solid-js'
+/** @jsxImportSource solid-js */
+import { createSignal, onMount, onCleanup, Show } from 'solid-js'
 import './App.css'
 import TestWorker from './worker?worker'
 import { decodeNamedCharacterReference } from 'decode-named-character-reference'
 
-interface DecoderResult {
+interface DecoderSuccess {
   input: string;
   result: string | null;
 }
 
 function App() {
   const [input, setInput] = createSignal('')
-  const [result, setResult] = createSignal<DecoderResult | null>(null)
+  const [result, setResult] = createSignal<DecoderSuccess | null>(null)
   const [useWorker, setUseWorker] = createSignal(true)
   let worker: Worker | null = null
 
@@ -18,7 +19,7 @@ function App() {
     // Initialize Worker
     worker = new TestWorker()
     worker.onmessage = (event) => {
-      setResult(event.data as DecoderResult)
+      setResult(event.data as DecoderSuccess)
     }
   })
   onCleanup(() => {
@@ -51,8 +52,9 @@ function App() {
 
   const getDisplayResult = () => {
     const res = result()
-    if (!res || !res.result) return null
-    const codePoint = res.result?.codePointAt(0)
+    if (!res) return null
+    if (!res.result) return null
+    const codePoint = res.result.codePointAt(0)
     if (codePoint == null) return null
 
     const codePointLabel = codePoint.toString(16).toUpperCase().padStart(4, "0")
@@ -61,11 +63,6 @@ function App() {
       codePoint: `U+${codePointLabel}`,
       character: res.result,
     }
-  }
-
-  const isError = () => {
-    const res = result()
-    return res && res.result === null
   }
 
   return (
@@ -97,27 +94,29 @@ function App() {
         </label>
       </div>
 
-      {isError() && (
-        <div style="'margin-top': '2rem'; padding: '1rem'; 'background-color': '#ffebee'; 'border-radius': '4px'; color: '#c62828'">
-          <p>
-            <strong>Error:</strong> No matching character reference found for "{result()!.input}"
-          </p>
-        </div>
-      )}
 
-      {getDisplayResult() && (
-        <div style="'margin-top': '2rem'; padding: '1rem'; 'background-color': '#f5f5f5'; 'border-radius': '4px'">
-          <p>
-            <strong>Input:</strong> {getDisplayResult()!.input}
+      <Show when={getDisplayResult()}
+        fallback={
+          <p style="'margin-top': '2rem'">
+            <Show when={input()} fallback={<span style="'font-style': 'italic'">No input</span>}>
+              No corresponding character found: {input()}
+            </Show>
           </p>
-          <p>
-            <strong>Code Point:</strong> {getDisplayResult()!.codePoint}
-          </p>
-          <p>
-            <strong>Character:</strong> <span style="'font-size': '2rem'">{getDisplayResult()!.character}</span>
-          </p>
-        </div>
-      )}
+        }>
+        {(d) => (
+          <div style="'margin-top': '2rem'; padding: '1rem'; 'background-color': '#f5f5f5'; 'border-radius': '4px'">
+            <p>
+              <strong>Input:</strong> {d().input}
+            </p>
+            <p>
+              <strong>Code Point:</strong> {d().codePoint}
+            </p>
+            <p>
+              <strong>Character:</strong> <span style="'font-size': '2rem'">{d().character}</span>
+            </p>
+          </div>
+        )}
+      </Show>
     </div>
   )
 }
